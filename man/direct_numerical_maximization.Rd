@@ -92,23 +92,15 @@ x <- c(1,16,19,34,22,6,3,5,6,3,4,1,4,3,5,7,9,8,11,11,
 
 ### Assummptions (number of states, probability vector, 
 ### transition matrix, and distribution parameters)
-
-m <-4
-
+    m <-4
 delta <- c(0.25,0.25,0.25,0.25)
-
 gamma <- 0.7 * diag(m) + rep(0.3 / m)
-
 distribution_class <- "pois"
-
 distribution_theta <- list(lambda = c(4,9,17,25))
-
 
 ### Estimation of a HMM using the method of 
 ### direct numerical maximization
-
-## TIME CONSUMING:
-\dontrun{
+\donttest{
 trained_HMM_with_m_hidden_states <- 
 		direct_numerical_maximization(x = x, 
       m = m, 

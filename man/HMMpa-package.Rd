@@ -24,9 +24,9 @@ This approach uses a stochastic model (the hidden Markov model or HMM) to identi
 \tabular{ll}{
 Package: \tab HMMpa\cr
 Type: \tab Package\cr
-Version: \tab 1.0\cr
-Date: \tab 2013-06-30\cr
-License: \tab 	GPL-2 | GPL-3 [expanded from: GPL (= 2)]\cr
+Version: \tab 1.0.1\cr
+Date: \tab 2018-04-20\cr
+License: \tab GPL-3 \cr
 }
 
 The new procedure for analyzing accelerometer data can be roughly described as follows:\cr
@@ -36,10 +36,10 @@ First, a hidden Markov model (HMM) is trained to estimate the number \code{m} of
 }
 \author{
 Vitali Witowski, \cr
-Dr. Ronja Foraita,
+Ronja Foraita,
 Leibniz Institute for Prevention Research and Epidemiology (BIPS) \cr
 
-Maintainer: Dr. Ronja Foraita <foraita@bips.uni-bremen.de>
+Maintainer: Ronja Foraita <foraita@leibniz-bips.de>
 }
 \references{
 Baum, L., Petrie, T., Soules, G., Weiss, N. (1970). A maximization technique occurring in the statistical analysis of probabilistic functions of markov chains. The annals of mathematical statistics, vol. \bold{41}(1), 164--171.
@@ -50,13 +50,16 @@ Dempster, A., Laird, N., Rubin, D. (1977). Maximum likelihood from incomplete da
 
 Forney, G.D. (1973). The Viterbi algorithm. Proceeding of the IEE, vol. \bold{61}(3), 268--278.
 
-Joe, H., Zhu, R. (2005). Generalized poisson distribution: the property of mixture of poisson and comparison with negative binomial distribution. Biometrical Journal, vol. \bold{47}(2):219--229. 
+Joe, H., Zhu, R. (2005). Generalized poisson distribution: the property of mixture of poisson and comparison with negative binomial distribution. Biometrical Journal, vol. \bold{47}(2), 219--229. 
 
 MacDonald, I. L., Zucchini, W. (2009) \emph{Hidden Markov Models for Time Series: An Introduction Using R}, Boca Raton: Chapman & Hall.
 
 Viterbi, A.J. (1967). Error Bounds for concolutional codes and an asymptotically optimal decoding algorithm. Information Theory, IEEE Transactions on, vol. \bold{13}(2), 260--269.
 
-Witowski, V. (2013). Hidden-Markov-Modelle fuer Zeitreihen - Analyse von Akzelerometerdaten der IDEFICS-Studie. Diploma Thesis, University Bremen - Leibniz Institute for Preventions Research and Epidemiology - BIPS GmbH
+Witowski, V., Foraita, R., Pitsiladis, Y., Pigeot, I., Wirsik, N. (2014) Using hidden Markov models to improve quantifying physical activity in accelerometer data - A simulation study. PLOS ONE. \bold{9}(12), e114089. 
+http://dx.doi.org/10.1371/journal.pone.0114089
+
+
 }
 \note{
   We thank Moritz Hanke for his help in realizing this package.
@@ -89,14 +92,13 @@ x <- c(1,16,19,34,22,6,3,5,6,3,4,1,4,3,5,7,9,8,11,11,
   40,33,32,35,34,36,34,32,33,27,28,25,22,17,18,16,10,9,
   5,12,7,8,8,9,19,21,24,20,23,19,17,18,17,22,11,12,3,9,
   10,4,5,13,3,5,6,3,5,4,2,5,1,2,4,4,3,2,1)  
-    
-    
+\donttest{    
 traditional_cut_off_point_method <- cut_off_point_method(x=x, 
  	cut_points = c(5,15,23), 
  	names_activity_ranges = c("SED","LIG","MOD","VIG"), 
  	bout_lengths = c(1,1,2,4,5,10,11,20,21,60,61,260),
  	plotting = 1)
- 	
+}
 
 
 ################################################################ 
@@ -140,9 +142,7 @@ x <- c(1,16,19,34,22,6,3,5,6,3,4,1,4,3,5,7,9,8,11,11,
 ##         and selection of the model with the most ########### 
 ##         plausible m ########################################
 ################################################################
-
-## TIME CONSUMING
-\dontrun{
+\donttest{
 m_trained_HMM <- HMM_training(x = x, 
  min_m = 2, 
  max_m = 6, 
@@ -153,7 +153,6 @@ m_trained_HMM <- HMM_training(x = x,
 ##         time-series of accelerometer counts to extract #####
 ##         hidden PA-levels ###################################
 ###############################################################
- 
 hidden_PA_levels <- HMM_decoding(x = x, 
  	 m = m_trained_HMM$m, 
  	 delta = m_trained_HMM$delta, 
@@ -174,7 +173,6 @@ hidden_PA_levels <- HMM_decoding(x = x,
 ##         and "vigorous" physical activity) are ##############
 ##         separated by the three cut-points 5, 15 and 23) ####
 ################################################################
- 
 HMM_based_cut_off_point_method <- cut_off_point_method(x = x, 
  	 hidden_PA_levels = hidden_PA_levels, 
  	 cut_points = c(5,15,23), 
@@ -217,9 +215,7 @@ x <- c(1,16,19,34,22,6,3,5,6,3,4,1,4,3,5,7,9,8,11,11,
 ## (named as "light", "moderate" and "vigorous" physical   ####
 ## activity) are separated by the two cut-points 15 and 23 ####
 ###############################################################
-
-## TIME CONSUMING:
-\dontrun{
+\donttest{
 HMM_based_cut_off_point_method <- HMM_based_method(x = x, 
  	 cut_points = c(15,23), 
  	 min_m = 4, 
@@ -232,15 +228,12 @@ HMM_based_cut_off_point_method <- HMM_based_method(x = x,
  	 bout_lengths = c(1,1,2,4,5,10,11,20,21,60,61,260),
  	 plotting = 1)
 } 	 
- 	 
- 	 
 
 ###############################################################
 ## Example 4) In a single function (Step 1-3 of Example 2  ####
 ##            combined in one function)                    ####
 ##            (large and highly scatterd time-series)      ####
 ###############################################################
-
 	 
 ################################################################
 ### Generate a large time-series of highly scattered counts ####
@@ -262,15 +255,13 @@ x <- HMM_simulation(
 ### Compare results of the tradional cut-point method ##########
 ### and the (6-state-normal-)HMM based method ##################
 ################################################################
-		
+\donttest{		
 traditional_cut_off_point_method <- cut_off_point_method(x=x, 
  	 cut_points = c(200,500,1000), 
  	 names_activity_ranges = c("SED","LIG","MOD","VIG"), 
  	 bout_lengths = c(1,1,2,4,5,10,11,20,21,60,61,260),
  	 plotting = 1)
 
-## TIME CONSUMING:
-\dontrun{
 HMM_based_cut_off_point_method <- HMM_based_method(x=x,
 	 max_scaled_x = 200, 
  	 cut_points = c(200,500,1000), 

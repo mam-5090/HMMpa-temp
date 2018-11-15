@@ -4,16 +4,17 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
     Mstep_numerical = FALSE, DNM_limit_accuracy = 0.001, DNM_max_iter = 50, DNM_print = 2) 
 {
 
-###################################################################################################   
-### Needed variables and functions ################################################################
-################################################################################################### 
+################################################################################
+### Needed variables and functions #############################################
+################################################################################
 
  
   if (distribution_class == "pois" | distribution_class == "geom")
   {
     k=1
   }	
-  if (distribution_class == "norm" | distribution_class == "genpois" | distribution_class == "bivariate_pois") 
+  if (distribution_class == "norm" | distribution_class == "genpois" |
+      distribution_class == "bivariate_pois") 
   {
     k=2
   }	
@@ -113,17 +114,21 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
   }
   
 
-############################################################################################################################################################################################################################### The training        #########################################################################################################
-################################################################################################################################################################################  
+################################################################################
+######################### The training        ##################################
+################################################################################
      
   for (l in 1:BW_max_iter)
   {
     
-    ############################################################################################################################################################################
-    ############### Estimation Step (E-Step)            ########################################################################################################################
-    ############################################################################################################################################################################
-    
-    fb <-  try( forward_backward_algorithm(x = x, gamma = gamma, delta = delta, distribution_class = distribution_class, distribution_theta = distribution_theta, discr_logL = discr_logL, discr_logL_eps = discr_logL_eps), silent = FALSE)    
+################################################################################
+############### Estimation Step (E-Step)            ############################
+################################################################################
+   fb <-  try( forward_backward_algorithm(x = x, gamma = gamma, delta = delta, 
+            distribution_class = distribution_class, 
+            distribution_theta = distribution_theta, 
+            discr_logL = discr_logL, discr_logL_eps = discr_logL_eps), 
+            silent = FALSE)    
 
     if (inherits(fb, "try-error")) 
     {  
@@ -147,7 +152,10 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
     
     if (BW_print == TRUE) 
     { 
-      print(list("##############################", m = paste("train (EM) HMM with m =", toString(m)), distribution = distribution_class, iteration = l, logL = logL, "##############################"))
+      print(list("##############################", 
+            m = paste("train (EM) HMM with m =", toString(m)), 
+            distribution = distribution_class, iteration = l, logL = logL, 
+            "##############################"))
     }
     
     if (logL >= 0 ) 
@@ -167,23 +175,10 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
     }   
 
 
-
-
     if (distribution_class == "pois")
     { 	
-    	#old	zeta
-    	#zeta <- matrix(c(0), ncol=m, nrow=size )
-        #zeta <- matrix(c(0), ncol=m, nrow=size )      
-        #for (i in 1:m)
-        #{ for (t in 1:size)
-        #{ zeta[t,i] <-  exp(fb$log_alpha[t,i] + fb$log_beta[t,i] - logL)
-        #}
-        #}
-      
-        #new zeta  
         zeta <- matrix(c(0), ncol=m, nrow = size)  
         zeta <- exp(fb$log_alpha + fb$log_beta - logL) 
-
 
         eta <- array(NA, dim = c((size-1), m, m))
         for (j in 1:m)
@@ -192,7 +187,8 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
             { 
             	for (t in 2:size)
             	{ 
-          			eta[t-1, i, j] <- exp( fb$log_alpha[(t-1),i] + log(gamma[i,j]) + log( dpois(x[t], distribution_theta$lambda[j]) ) + fb$log_beta[t,j] - logL)
+          			eta[t-1, i, j] <- exp( fb$log_alpha[(t-1),i] + log(gamma[i,j]) + 
+          			    log( dpois(x[t], distribution_theta$lambda[j]) ) + fb$log_beta[t,j] - logL)
       	  		}
       		}
       	}    
@@ -213,7 +209,8 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
       		{ 
       			for(t in 2:size)
       			{ 
-      				eta[t-1, i, j] <- exp( fb$log_alpha[(t-1),i] + log(gamma[i,j]) + log( dgeom(x[t], distribution_theta$prob[j]) ) + fb$log_beta[t,j] - logL)
+      				eta[t-1, i, j] <- exp( fb$log_alpha[(t-1),i] + log(gamma[i,j]) + 
+      				    log( dgeom(x[t], distribution_theta$prob[j]) ) + fb$log_beta[t,j] - logL)
       			}
       		}
       	}
@@ -224,10 +221,8 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
         
     if (distribution_class == "genpois")
     { 
-
-        zeta <- matrix(c(0), ncol = m, nrow = size)  
-        zeta <- exp( fb$log_alpha + fb$log_beta - logL) 
-        
+      zeta <- matrix(c(0), ncol = m, nrow = size)  
+      zeta <- exp( fb$log_alpha + fb$log_beta - logL) 
      
      	eta <- array(NA, dim = c((size - 1), m, m))
       	for (j in 1:m) 
@@ -236,7 +231,9 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
       		{ 
       			for (t in 2:size)
       			{ 
-      				eta[t-1, i, j] <- exp( fb$log_alpha[(t-1),i] + log(gamma[i,j]) + log(dgenpois(x[t], distribution_theta$lambda1[j], distribution_theta$lambda2[j]) ) + fb$log_beta[t,j] - logL)
+      				eta[t-1, i, j] <- exp( fb$log_alpha[(t-1),i] + log(gamma[i,j]) 
+      				    + log(dgenpois(x[t], distribution_theta$lambda1[j], distribution_theta$lambda2[j]) ) 
+      				    + fb$log_beta[t,j] - logL)
       			}
       		}
       	}
@@ -244,21 +241,21 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
     }
     
     
-    
     if (distribution_class == "norm")
     { 
-
-        zeta <- matrix(c(0), ncol = m, nrow = size )  
-        zeta <- exp( fb$log_alpha + fb$log_beta - logL) 
+      zeta <- matrix(c(0), ncol = m, nrow = size )  
+      zeta <- exp( fb$log_alpha + fb$log_beta - logL) 
       
-      	eta <- array(NA, dim = c((size-1), m, m))
+    	eta <- array(NA, dim = c((size-1), m, m))
       	for (j in 1:m)
       	{ 
       		for (i in 1:m)
       		{ 
       			for (t in 2:size)
       			{ 
-      				eta[t-1,i , j] <- exp( fb$log_alpha[(t-1),i] + log(gamma[i,j]) + log(dnorm(x[t], distribution_theta$mean[j], distribution_theta$sd[j]) ) + fb$log_beta[t,j]  - logL)
+      				eta[t-1,i , j] <- exp( fb$log_alpha[(t-1),i] + log(gamma[i,j]) + 
+      				    log(dnorm(x[t], distribution_theta$mean[j], distribution_theta$sd[j]) ) 
+      				    + fb$log_beta[t,j]  - logL)
       			}
       		}
       	}
@@ -269,62 +266,44 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
     
     if (distribution_class == "bivariate_pois")
     { 	
-      	size=length(x[,1])
+      size=length(x[,1])
        
-        zeta <- matrix(c(0), ncol = m, nrow=size)  
-        zeta <- exp(fb$log_alpha + fb$log_beta - logL) 
+      zeta <- matrix(c(0), ncol = m, nrow=size)  
+      zeta <- exp(fb$log_alpha + fb$log_beta - logL) 
       
-      	eta <- array(NA, dim = c((size - 1), m, m))
+      eta <- array(NA, dim = c((size - 1), m, m))
       	for (j in 1:m)
       	{ 
       		for (i in 1:m)
       		{ 
       			for (t in 2:size)
       			{ 
-      				eta[t - 1, i, j] <- exp( fb$log_alpha[(t - 1),i] + log(gamma[i, j]) + log(dpois(x[t, 1], distribution_theta$lambda_1[j]) ) + log(dpois(x[t, 2], distribution_theta$lambda_2[j])) + fb$log_beta[t, j] - logL)          
+      				eta[t - 1, i, j] <- exp( fb$log_alpha[(t - 1),i] + log(gamma[i, j]) 
+      				  + log(dpois(x[t, 1], distribution_theta$lambda_1[j]) ) 
+      				  + log(dpois(x[t, 2], distribution_theta$lambda_2[j])) 
+      				  + fb$log_beta[t, j] - logL)          
       			}
       		}
       	}    	
     }
-    
 
 
-    list_eta_zeta = list(zeta = zeta, eta = eta)
+  list_eta_zeta = list(zeta = zeta, eta = eta)
           
-    ############################################################ä###############################################################################################################
-    ############### Maximization Step (M-Step)          ########################################################################################################################
-    ############################################################################################################################################################################
+################################################################################
+############### Maximization Step (M-Step)  ####################################
+################################################################################
     
-    delta <- list_eta_zeta$zeta[1,]
+ delta <- list_eta_zeta$zeta[1,]
     
-    gamma <- matrix(0, ncol=m, nrow=m)
+ gamma <- matrix(0, ncol=m, nrow=m)
     for (i in 1:m)
     { 
     	for (j in 1:m)
     	{ 
-    		#old sum_numerator
-    		#sum_numerator=0
-      		#for (tt in 1:(size-1))
-      		#{ 
-      		#	sum_numerator <- sum_numerator + list_eta_zeta$eta[tt, i, j]
-      		#}
-      		
-      		#new sum_numerator
-      		sum_numerator <- 0
-      		sum_numerator <- sum(list_eta_zeta$eta[, i, j]) 
-      
-          	#old sum_denominator
-      		#sum_denominator <- 0 
-      		#for (k in 1:m) 
-      		#{ 
-      		#	for (tt in 1:(size - 1))
-      		#	{ 
-        	#		sum_denominator = sum_denominator + list_eta_zeta$eta[tt, i, k] 
-      		#	}
-      		#} 
-      		
-      		#new sum_denominator
-      		sum_denominator <- 0
+    		sum_numerator <- 0
+    		sum_numerator <- sum(list_eta_zeta$eta[, i, j]) 
+    		sum_denominator <- 0
       		for (k in 1:m) 
       		{ 
         		sum_denominator <- sum_denominator + sum(list_eta_zeta$eta[, i, k]) 
@@ -343,27 +322,8 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
       
       for (i in 1:m) 
       { 
-      	#old_sum_numerator
-      	#sum_numerator <- 0
-        #for (tt in 1:size)
-        #{ 
-        #	sum_numerator <- sum_numerator + list_eta_zeta$zeta[tt,i] * x[tt]
-        #}
-        
-        #new sum_numerator
         sum_numerator <- 0
         sum_numerator <- sum(list_eta_zeta$zeta[, i] * x)
-
-        
-        
-        #old_denominator      
-        #sum_denominator <- 0
-        #for (tt in 1:size)
-        #{
-        #  	sum_denominator <- sum_denominator + list_eta_zeta$zeta[tt, i]
-        #}
-        
-        #new_sum_denominator
         sum_denominator <- 0
         sum_denominator <- sum(list_eta_zeta$zeta[, i])
                 
@@ -398,18 +358,15 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
         	sum_numerator <- sum_numerator + list_eta_zeta$zeta[tt,i] * ((x[tt] - mean[i])^2)
         }
                   
-        sum_denominator <- 0
-        sum_denominator <- sum(list_eta_zeta$zeta[, i])
-        
-        
-      sd[i] <- sum_numerator / sum_denominator
-      sd[i] <- sqrt(sd[i])
+       sum_denominator <- 0
+       sum_denominator <- sum(list_eta_zeta$zeta[, i])
+       sd[i] <- sum_numerator / sum_denominator
+       sd[i] <- sqrt(sd[i])
       }
       
       estimated_mean_values <- mean
       distribution_theta <- list(mean = mean, sd = sd)
     }
-    
     
     
     if(distribution_class == "geom") 
@@ -489,7 +446,10 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
       
       vector_of_parameters <- c(trans_lambda)   
       
-      minterm3 <- nlm(negterm3, distribution_class = distribution_class, m = m, p = vector_of_parameters, x = x, list_eta_zeta = list_eta_zeta, print.level = DNM_print, gradtol = DNM_limit_accuracy, iterlim = DNM_max_iter)
+      minterm3 <- nlm(negterm3, distribution_class = distribution_class, m = m, 
+                      p = vector_of_parameters, x = x, 
+                      list_eta_zeta = list_eta_zeta, print.level = DNM_print, 
+                      gradtol = DNM_limit_accuracy, iterlim = DNM_max_iter)
             
       est_lambda <- DNM_exp_w2n(minterm3$estimate)
       
@@ -500,7 +460,10 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
       
       distribution_theta <- list(lambda=est_lambda)
       
-      print(list(distribution_theta = distribution_theta, E = estimated_mean_values, var = estimated_var, sd = estimated_sd))  
+      print(list(distribution_theta = distribution_theta, 
+                 E = estimated_mean_values, 
+                 var = estimated_var, 
+                 sd = estimated_sd))  
     }
     
     
@@ -512,7 +475,10 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
       
       vector_of_parameters <- c(trans_mean, trans_sd) 
         
-      minterm3 <- nlm(negterm3, distribution_class = distribution_class, m = m, p = vector_of_parameters, x = x, list_eta_zeta = list_eta_zeta, print.level = DNM_print, gradtol = DNM_limit_accuracy, iterlim = DNM_max_iter)
+      minterm3 <- nlm(negterm3, distribution_class = distribution_class, m = m, 
+                      p = vector_of_parameters, x = x, 
+                      list_eta_zeta = list_eta_zeta, print.level = DNM_print, 
+                      gradtol = DNM_limit_accuracy, iterlim = DNM_max_iter)
       
       estimated_mean <- minterm3$estimate[1:m]
       
@@ -528,7 +494,10 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
       
       distribution_theta <- list(mean = estimated_mean, sd = estimated_sd) 
       
-      print(list(distribution_theta = distribution_theta, E = estimated_mean_values, var = estimated_var, sd = estimated_sd))
+      print(list(distribution_theta = distribution_theta, 
+                 E = estimated_mean_values, 
+                 var = estimated_var, 
+                 sd = estimated_sd))
     }
     
     if (distribution_class == "genpois" & Mstep_numerical == TRUE) 
@@ -539,7 +508,11 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
       
       vector_of_parameters <- c(trans_lambda1, trans_lambda2)   
       
-      minterm3 <- nlm(negterm3, distribution_class = distribution_class, m = m, p = vector_of_parameters, x = x, list_eta_zeta = list_eta_zeta, print.level = DNM_print, gradtol = DNM_limit_accuracy, iterlim = DNM_max_iter)
+      minterm3 <- nlm(negterm3, distribution_class = distribution_class, m = m, 
+                      p = vector_of_parameters, x = x, 
+                      list_eta_zeta = list_eta_zeta, 
+                      print.level = DNM_print, gradtol = DNM_limit_accuracy, 
+                      iterlim = DNM_max_iter)
       
       estimated_lambda1 <- DNM_exp_w2n(minterm3$estimate[1:m])
       
@@ -553,14 +526,17 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
       
       distribution_theta <- list(lambda1 = estimated_lambda1, lambda2 = estimated_lambda2)
       
-      print(list(distribution_theta = distribution_theta, E = estimated_mean_values, var = estimated_var, sd = estimated_sd))
+      print(list(distribution_theta = distribution_theta, 
+                 E = estimated_mean_values, 
+                 var = estimated_var, 
+                 sd = estimated_sd))
     }
     
     difference_old_logL_and_new_logL = abs(oldlogL - logL)
     
     if (difference_old_logL_and_new_logL < BW_limit_accuracy) 
     { 
-      reached_limit_of_accuracy=TRUE
+      reached_limit_of_accuracy = TRUE
       break
     }
     
@@ -568,14 +544,16 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
   }
 
 
-############################################################################################################################################################################################################################### Accessing AIC and BIC for the trained HMM ####################################################################################
-################################################################################################################################################################################
+################################################################################
+######################### Accessing AIC and BIC for the trained HMM ############
+################################################################################
   
   AIC <- AIC_HMM(logL = logL, m = m, k = k) 
   BIC <- BIC_HMM(size = size, logL = logL, m = m, k = k) 
   
-############################################################################################################################################################################################################################### Return results ################################################################################################################
-################################################################################################################################################################################
+################################################################################
+######################### Return results #######################################
+################################################################################
   
   return(list(x = x,
               m = m,

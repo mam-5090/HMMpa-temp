@@ -98,12 +98,9 @@ x <- c(1,16,19,34,22,6,3,5,6,3,4,1,4,3,5,7,9,8,11,11,
   5,12,7,8,8,9,19,21,24,20,23,19,17,18,17,22,11,12,3,9,
   10,4,5,13,3,5,6,3,5,4,2,5,1,2,4,4,3,2,1)  
 
-
 ### Train hidden Markov model for different number of 
 ### states m=2,...,6 and select the optimal model
-
-## TIME CONSUMING:
-\dontrun{
+\donttest{
 m_trained_HMM <- 
     HMM_training(x = x, 
        min_m = 2, 
@@ -119,7 +116,6 @@ m_trained_HMM <-
 
 ### Decode the trained HMM using the Viterbi algorithm to get 
 ### the estimated sequence of hidden physical activity levels
-
 global_decoding <- 
     HMM_decoding(x = x, 
         m = m_trained_HMM$m, 
@@ -131,7 +127,6 @@ global_decoding <-
           
 ### Globally most likely sequence of hidden states, 
 ### i.e. in this case sequence of activity levels
-
 global_decoding$decoding
 
 par(mfrow = c(1,1))
@@ -141,10 +136,8 @@ plot(global_decoding$decoding)
 ### Plot the observed impulse counts and the most likely 
 ### sequence (green) according to the Viterbi algorithm that 
 ### generated these observations
-
 plot(x)
 lines(global_decoding$decoding_distr_means, col = "green")
-
 
 ################################################################
 ################################################################ 
@@ -155,7 +148,6 @@ lines(global_decoding$decoding_distr_means, col = "green")
 ### Decode the trained HMM using the local decoding algorithm 
 ### to get the estimated sequence of hidden physical activity 
 ### levels
-
 local_decoding <- 
    HMM_decoding(x = x, 
    m = m_trained_HMM$m, 
@@ -168,7 +160,6 @@ local_decoding <-
 
 ### Locally most likely sequence of hidden states, 
 ### i.e. in this case sequence of activity levels
-
 local_decoding$decoding
 
 par(mfrow=c(1,1))
@@ -178,10 +169,8 @@ plot(local_decoding$decoding)
 ### Plot the observed impulse counts and the most likely 
 ### sequence (green) according to the local decoding algorithm 
 ### that generated these observations
-
 plot(x)
 lines(local_decoding$decoding_distr_means, col = "red")
-
 
 ################################################################
 ################################################################
@@ -191,13 +180,10 @@ lines(local_decoding$decoding_distr_means, col = "red")
 
 ### Comparison of global decoding (green), local decoding (red) 
 ### and the connection to the closest mean (blue)
-
 print(global_decoding$decoding)  
 print(local_decoding$decoding)
 
-
 ### Plot comparison 
-
 par(mfrow = c(2,2))
 plot(global_decoding$decoding[seq(230,260)], col = "green", 
   ylab = "global decoding", main = "(zooming)")

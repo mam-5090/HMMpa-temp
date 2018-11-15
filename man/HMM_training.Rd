@@ -139,9 +139,7 @@ x <- c(1,16,19,34,22,6,3,5,6,3,4,1,4,3,5,7,9,8,11,11,
 
 ## Train a poisson hidden Markov model using the Baum-Welch 
 ## algorithm for different number of states m=2,...,6
-
-## TIME CONSUMING:
-\dontrun{
+\donttest{
 trained_HMMs <- 
     HMM_training(x = x, 
       distribution_class = "pois", 

@@ -97,7 +97,7 @@ distribution_theta <- list(lambda = c(4,9,17,25))
 
 ### Calculating logarithmized forward/backward probabilities 
 ### and logarithmized likelihood
-
+\donttest{
 forward_and_backward_probabilities_and_logL <- 
     forward_backward_algorithm (x = x, 
         delta = delta, 
@@ -106,7 +106,7 @@ forward_and_backward_probabilities_and_logL <-
         distribution_theta = distribution_theta)
 
 print(forward_and_backward_probabilities_and_logL)
-
+}
 }
 \keyword{ ts }
 

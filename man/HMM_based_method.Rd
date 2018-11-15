@@ -118,8 +118,8 @@ Brachmann, B. (2011). Hidden-Markov-Modelle fuer Akzelerometerdaten. Diploma The
 
 MacDonald, I. L., Zucchini, W. (2009) \emph{Hidden Markov Models for Time Series: An Introduction Using R}, Boca Raton: Chapman & Hall.
 
-Witowski, V. (2013). Hidden-Markov-Modelle fuer Zeitreihen - Analyse von Akzelerometerdaten der IDEFICS-Studie. Diploma Thesis, University Bremen - Leibniz Institute for Preventions Research and Epidemiology - BIPS GmbH
-}
+Witowski, V., Foraita, R., Pitsiladis, Y., Pigeot, I., Wirsik, N. (2014) Using hidden Markov models to improve quantifying physical activity in accelerometer data - A simulation study. PLOS ONE. \bold{9}(12), e114089. 
+http://dx.doi.org/10.1371/journal.pone.0114089}
 \author{
 Vitali Witowski (2013). 
 }
@@ -159,13 +159,11 @@ x <- 100 * c(1,16,19,34,22,6,3,5,6,3,4,1,4,3,5,7,9,8,11,11,
 ### Fictitious cut-off points that produce four so-called 
 ### activity ranges "sedentary", "light", "moderate", 
 ### and "vigorous".
-
 cut_points <- 100 * c(7,15,23)
 names_activity_ranges <- c("SED","LIG","MOD","VIG")
 
 
 ### Plot fictitious activity counts
-
 plot(x, main = "counts with high values", 
      xlab = "time/epoch", ylab = "counts")
 abline(h = cut_points, col = "grey50", lty = "dashed")
@@ -178,7 +176,7 @@ abline(h = cut_points, col = "grey50", lty = "dashed")
 
 ### Apply the traditional cut-off point method to assign 
 ### physical activity ranges to each observed count
-
+\donttest{
 solution_of_tradtionional_cut_off_point_method <-
    cut_off_point_method(x = x, 
        hidden_PA_levels = NA, 
@@ -187,12 +185,10 @@ solution_of_tradtionional_cut_off_point_method <-
        bout_lengths = c(1,1,2,2,3,3,4,4,5,5,6,12, 
        13,40,41,265,1,265), 
 	     plotting = 1)
-
+}
 ### Apply the HMM-based method to assign physical activity 
 ### ranges to the hidden physical activity level of each count
-
-## TIME CONSUMING:
-\dontrun{
+\donttest{
 solution_of_HMM_based_method <- 
     HMM_based_method(x = x, 
       max_scaled_x = 50, 
@@ -210,7 +206,6 @@ solution_of_HMM_based_method <-
 		
 ### Print details of the traditional cut-off point method 
 ### and the new HMM-based method
-
 print(solution_of_tradtionional_cut_off_point_method)
 print(solution_of_HMM_based_method)
 }

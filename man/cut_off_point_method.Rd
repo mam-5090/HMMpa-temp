@@ -94,7 +94,7 @@ x <- c(1,16,19,34,22,6,3,5,6,3,4,1,4,3,5,7,9,8,11,11,
 ### Assigning activity ranges to activity counts using 
 ### fictitious cut-off points that produce the four activity 
 ### ranges "sedentary"", "light"", "moderate"", and "vigorous". 
-
+\donttest{
 solution_of_traditional_cut_off_point_method <- 
     cut_off_point_method(x = x, 
       cut_points = c(5,15,23), 
@@ -104,7 +104,7 @@ solution_of_traditional_cut_off_point_method <-
       plotting = 0)
 
 print(solution_of_traditional_cut_off_point_method)
-
+}
 
 ###############################################################
 ### ii.) Extension of the tradionional cut_point method #######
@@ -124,9 +124,7 @@ print(solution_of_traditional_cut_off_point_method)
 ## Train hidden Markov model for different number of 
 ## states m=2,...,6 and select the model with the most 
 ## plausible m
-
-## TIME CONSUMING:
-\dontrun{ 
+\donttest{
 m_trained_HMM <- 
     HMM_training(x = x, 
       min_m = 2, 
@@ -141,9 +139,8 @@ m_trained_HMM <-
 ## sequence of hidden physical activity levels 
 ## underlying the the accelerometer counts 
 
-
-## You have to compute 'm_trained_HMM' first (see above)
-\dontrun{
+## You have to compute 'm_trained_HMM' first (see Step 1)
+\donttest{
 global_decoding <- 
     HMM_decoding(x = x, 
       m = m_trained_HMM$m, 
@@ -167,7 +164,7 @@ hidden_PA_levels <-
 
 ## You have to compute 'm_trained_HMM' and 
 ## 'hidden_PA_levels' first (see above)
-\dontrun{
+\donttest{
 solution_of_HMM_based_cut_off_point_method <- 
  cut_off_point_method(x = x, 
   hidden_PA_levels = hidden_PA_levels, 

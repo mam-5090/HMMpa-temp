@@ -133,7 +133,7 @@ distribution_theta <- list(lambda = c(4,9,17,25))
 
 
 ### Estimation of a HMM using the Baum-Welch algorithm
-
+\donttest{
 trained_HMM_with_m_hidden_states <- 
     Baum_Welch_algorithm(x = x, 
         m = m, 
@@ -143,7 +143,7 @@ trained_HMM_with_m_hidden_states <-
         distribution_theta = distribution_theta)
 
 print(trained_HMM_with_m_hidden_states)
-
+}
 }
 \keyword{ ts }
 \keyword{ iteration }

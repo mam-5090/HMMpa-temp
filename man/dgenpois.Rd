@@ -45,7 +45,7 @@ Based on Joe and Zhu (2005). Implementation by  Vitali Witowski (2013).
 }
 
 \seealso{
-\link[stats]{Distributions} for other standard distributions, including \code{\link[stats]{dpois}} for the Poisson distribution.
+\link{Distributions} for other standard distributions, including \code{\link{dpois}} for the Poisson distribution.
 }
 
 \examples{

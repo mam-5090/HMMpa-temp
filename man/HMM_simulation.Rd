@@ -95,7 +95,7 @@ Has to be used with caution, since it manipulates the results of the HMM. If a n
 ################################################################
 ### i.) Generating a HMM with Poisson-distributed data #########
 ################################################################
-
+\donttest{
 Pois_HMM_data <- 
    HMM_simulation(size = 300, 
       m = 5, 
@@ -103,8 +103,7 @@ Pois_HMM_data <-
       distribution_theta = list( lambda=c(10,15,25,35,55)))
 
 print(Pois_HMM_data)
-
-
+}
 ################################################################
 ### ii.) Generating 6 physical activities with normally ########
 ###      distributed accelerometer counts using a HMM. #########
@@ -139,6 +138,7 @@ obs_range <-c(NA,2000)
 obs_non_neg <-TRUE
 
 ### Start simulation
+\donttest{
 accelerometer_data <- 
    HMM_simulation(size = size, 
      m = m, 
@@ -150,8 +150,8 @@ accelerometer_data <-
      obs_non_neg= obs_non_neg, plotting=0)
 
 print(accelerometer_data)
+}}
 
-}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{ ~kwd1 }

@@ -82,8 +82,7 @@ x <- c(1,16,19,34,22,6,3,5,6,3,4,1,4,3,5,7,9,8,11,11,
 ### for a generealized-Pois-HMM with m=4 states
 m <- 4 
 
-## TIME CONSUMING:
-\dontrun{
+\donttest{
 plausible_starting_values <- 
    initial_parameter_training(x = x, 
      m = m, 

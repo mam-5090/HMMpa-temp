@@ -75,18 +75,16 @@ x <- c(1,16,19,34,22,6,3,5,6,3,4,1,4,3,5,7,9,8,11,11,
 
 
 ### Train hidden Markov model for m=4
-
+\donttest{
 m_trained_HMM <- 
     HMM_training(x = x, 
       min_m = 4, 
       max_m = 4, 
       distribution_class="pois")$trained_HMM_with_selected_m
 
-
 ### Decode the trained HMM using the Viterbi algorithm to get 
 ### the globally most likely sequence of hidden states for 
 ### the time-series of observations
-
 global_decoding <- 
     Viterbi_algorithm(x = x, 
       m = m_trained_HMM$m, 
@@ -95,12 +93,9 @@ global_decoding <-
       distribution_class = m_trained_HMM$distribution_class, 
       distribution_theta = m_trained_HMM$distribution_theta)
 
-
 ### Most likely sequence of hidden states
-
 print(global_decoding$decoding)
-
 plot(global_decoding$decoding)
-
+}
 }
 
