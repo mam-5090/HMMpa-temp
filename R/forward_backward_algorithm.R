@@ -37,7 +37,13 @@ function(x, delta, gamma, distribution_class, distribution_theta, discr_logL = F
   
     probabilities <- outer(X = x, Y = distribution_theta$lambda, FUN = dpois)
   }
-  
+ 
+  if (distribution_class == "nbin")
+  {
+    probabilities <-  matrix(x, ncol = m, nrow = size)
+    probabilities <-  t(apply(X = probabilities, MARGIN = 1, FUN = dnbinom, 
+                              x = distribution_theta$x, size = distribution_theta$size, prob = distribution_theta$prob))
+  }
   
   if (distribution_class == "geom")
   {  

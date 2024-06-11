@@ -1,3 +1,7 @@
+# library(HMMpa)
+?Baum_Welch_algorithm
+?dnbinom
+
 Baum_Welch_algorithm <- 
 function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL = FALSE, 
     discr_logL_eps = 0.5, BW_max_iter = 50, BW_limit_accuracy = 0.001, BW_print=TRUE,
@@ -14,7 +18,7 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
     k=1
   }	
   if (distribution_class == "norm" | distribution_class == "genpois" |
-      distribution_class == "bivariate_pois") 
+      distribution_class == "bivariate_pois" | distribution_class == "nbin") 
   {
     k=2
   }	
@@ -56,6 +60,26 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
   negterm3 <- function(x, p, distribution_class, m, list_eta_zeta)
   { 
     size <- length(x)
+    
+    # WIP
+    if (distribution_class == "nbin") 
+    {
+      
+      term3 <- 0
+      for (i in 1:m)
+      { 
+        for (tt in 1:size)
+        { 
+          term3 <- term3 + list_eta_zeta$zeta[tt,i] * log( dpois(x=x[tt], lambda=DNM_exp_w2n(p[i]))) 
+        }
+      }    
+      
+      if (is.na(term3) | term3 == Inf | term3 == -Inf)
+      {
+        term3 <- -Inf
+      }
+      negterm3 <- -term3
+    }
     
     if (distribution_class == "pois") 
     {
@@ -174,7 +198,12 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
       break
     }   
 
-
+    # WIP
+    if (distribution_class == "nbin")
+    {
+      pass
+    }
+    
     if (distribution_class == "pois")
     { 	
         zeta <- matrix(c(0), ncol=m, nrow = size)  
@@ -314,7 +343,13 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
     }
     
     
-    
+    # WIP
+    if ( distribution_class == "nbin" ) 
+    {
+      pass
+    }
+ 
+ 
     if (distribution_class == "pois" & Mstep_numerical == FALSE) 
     { 
       
@@ -439,7 +474,14 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
     }
     
  
-    
+    # WIP
+    if(distribution_class == "nbin" )
+    {
+      # x = distribution_theta$x, size = distribution_theta$size, 
+      distribution_theta <- list(x = , size = , prob = prob)
+    }
+ 
+ 
     if(distribution_class == "pois" & Mstep_numerical == TRUE) 
     {
       trans_lambda <- DNM_log_n2w(distribution_theta$lambda)
