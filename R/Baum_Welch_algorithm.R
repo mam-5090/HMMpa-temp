@@ -3,6 +3,7 @@
 ?dnbinom
 ?log
 ?optim
+?neg_log_liklihood
 Baum_Welch_algorithm <- 
 function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL = FALSE, 
     discr_logL_eps = 0.5, BW_max_iter = 50, BW_limit_accuracy = 0.001, BW_print=TRUE,
@@ -58,25 +59,32 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
   }
   
   # WIP
+  neg_log_likelihood <- function(params, x) 
+  {
+    mu <- exp(params[1])
+    size <- exp(params[2])
+    -sum(dnbinom(x, size))
+  }
+  
   DNM_MLE <- function(xt)
   {
-    result <- optim(par = 0.5,  # initial guess for prob
+    result <- optim(par = c(log(mean(xt)), log(var(xt) / mean(xt) - 1)),  # initial guesses for log(mu) and log(size)
                     fn = neg_log_likelihood,
                     x = xt,
-                    size = size,
-                    method = "Brent",
-                    lower = 1e-10,  # lower bound for prob
-                    upper = 1-1e-10)  # upper bound for prob
+                    method = "BFGS")
     
-    # Extract the estimated prob
-    return(result$par)
+    # Extract the estimated parameters
+    mu <- exp(result$par[1])
+    size <- exp(result$par[2])
+    prob <- size / (size + mu)
+    return(list(mu = mu, size = size, prob = prob))
   }
    
   negterm3 <- function(x, p, distribution_class, m, list_eta_zeta)
   { 
     size <- length(x)
     
-    # WIP
+    # WIP done-ish
     if (distribution_class == "nbin") 
     {
       
@@ -85,7 +93,9 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
       { 
         for (tt in 1:size)
         { 
-          term3 <- term3 + list_eta_zeta$zeta[tt,i] * log(dnbinom(x=x[tt], size=size, prob = DNM_MLE(x[tt]) ) ) 
+          est <- DNM_MLE(x[tt])
+          term3 <- term3 + list_eta_zeta$zeta[tt,i] * log(dnbinom(x=x[tt], size=est$size,
+                                                                  prob = est$prob ) ) 
         }
       }    
       
@@ -213,11 +223,10 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
       break
     }   
 
-    # WIP
+    # WIP done-ish
     if (distribution_class == "nbin")
     {
-      size=length(x[,1])
-      
+
       zeta <- matrix(c(0), ncol = m, nrow=size)  
       zeta <- exp(fb$log_alpha + fb$log_beta - logL) 
       
@@ -376,9 +385,30 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
     
     
     # WIP
-    if ( distribution_class == "nbin" ) 
+    if ( distribution_class == "nbin" & Mstep_numerical == FALSE) 
     {
-      pass
+      mu <- rep(0, times = m)
+      size <- rep(0, times = m)
+      prob <- rep(0, times = m)
+      
+      for (i in 1:m) 
+      {
+        sum_numerator <- 0
+        sum_denominator <- 0
+        
+        for (tt in 1:size) 
+        {
+          sum_numerator <- sum_numerator + list_eta_zeta$zeta[tt, i] * x[tt]
+          sum_denominator <- sum_denominator + list_eta_zeta$zeta[tt, i]
+        }
+        
+        mu[i] <- sum_numerator / sum_denominator
+        size[i] <- var(x) / mu[i]
+        prob[i] <- size[i] / (size[i] + mu[i])
+      }
+      
+      estimated_mean_values <- mu
+      distribution_theta <- list(mu = mu, size = size, prob = prob)
     }
  
  
@@ -507,7 +537,7 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
     
  
     # WIP
-    if(distribution_class == "nbin" )
+    if(distribution_class == "nbin" & Mstep_numerical == TRUE)
     {
       # x = distribution_theta$x, size = distribution_theta$size, 
       distribution_theta <- list(x = , size = , prob = prob)
