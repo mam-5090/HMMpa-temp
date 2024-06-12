@@ -1,13 +1,14 @@
 # library(HMMpa)
 ?Baum_Welch_algorithm
 ?dnbinom
-
+?log
+?optim
 Baum_Welch_algorithm <- 
 function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL = FALSE, 
     discr_logL_eps = 0.5, BW_max_iter = 50, BW_limit_accuracy = 0.001, BW_print=TRUE,
     Mstep_numerical = FALSE, DNM_limit_accuracy = 0.001, DNM_max_iter = 50, DNM_print = 2) 
 {
-
+ 
 ################################################################################
 ### Needed variables and functions #############################################
 ################################################################################
@@ -55,7 +56,21 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
     np = exp(wp) /(1 + exp(wp))
     return(np)
   }
-   
+  
+  # WIP
+  DNM_MLE <- function(xt)
+  {
+    result <- optim(par = 0.5,  # initial guess for prob
+                    fn = neg_log_likelihood,
+                    x = xt,
+                    size = size,
+                    method = "Brent",
+                    lower = 1e-10,  # lower bound for prob
+                    upper = 1-1e-10)  # upper bound for prob
+    
+    # Extract the estimated prob
+    return(result$par)
+  }
    
   negterm3 <- function(x, p, distribution_class, m, list_eta_zeta)
   { 
@@ -70,7 +85,7 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
       { 
         for (tt in 1:size)
         { 
-          term3 <- term3 + list_eta_zeta$zeta[tt,i] * log( dpois(x=x[tt], lambda=DNM_exp_w2n(p[i]))) 
+          term3 <- term3 + list_eta_zeta$zeta[tt,i] * log(dnbinom(x=x[tt], size=size, prob = DNM_MLE(x[tt]) ) ) 
         }
       }    
       
@@ -201,7 +216,24 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
     # WIP
     if (distribution_class == "nbin")
     {
-      pass
+      size=length(x[,1])
+      
+      zeta <- matrix(c(0), ncol = m, nrow=size)  
+      zeta <- exp(fb$log_alpha + fb$log_beta - logL) 
+      
+      eta <- array(NA, dim = c((size - 1), m, m))
+      for (j in 1:m)
+      { 
+        for (i in 1:m)
+        { 
+          for (t in 2:size)
+          { 
+            eta[t - 1, i, j] <- exp( fb$log_alpha[(t - 1),i] + log(gamma[i, j]) 
+                                     + log(dnbinom(x=x[t], size=size, prob = DNM_MLE(x[t])) 
+                                     + fb$log_beta[t, j] - logL))          
+          }
+        }
+      }    
     }
     
     if (distribution_class == "pois")
