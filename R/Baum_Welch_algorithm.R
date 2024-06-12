@@ -1,10 +1,13 @@
 # library(HMMpa)
-?Baum_Welch_algorithm
+# ?Baum_Welch_algorithm
 ?dnbinom
 ?log
 ?optim
-?neg_log_liklihood
-Baum_Welch_algorithm <- 
+# setwd("C:\\Users\\Maddi\\OneDrive\\VIEWS\\HMMpa-temp")
+source("C:\\Users\\Maddi\\OneDrive\\VIEWS\\HMMpa-temp\\R\\forward_backward_algorithm.R")
+library(HMMpa)
+
+Baum_Welch_algo <- 
 function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL = FALSE, 
     discr_logL_eps = 0.5, BW_max_iter = 50, BW_limit_accuracy = 0.001, BW_print=TRUE,
     Mstep_numerical = FALSE, DNM_limit_accuracy = 0.001, DNM_max_iter = 50, DNM_print = 2) 
@@ -63,7 +66,7 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
   {
     mu <- exp(params[1])
     size <- exp(params[2])
-    -sum(dnbinom(x, size))
+    -sum(dnbinom(x=x, size=size, mu=mu))
   }
   
   DNM_MLE <- function(xt)
@@ -173,7 +176,7 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
 ################################################################################
 ############### Estimation Step (E-Step)            ############################
 ################################################################################
-   fb <-  try( forward_backward_algorithm(x = x, gamma = gamma, delta = delta, 
+   fb <-  try( forward_backward_algo(x = x, gamma = gamma, delta = delta, 
             distribution_class = distribution_class, 
             distribution_theta = distribution_theta, 
             discr_logL = discr_logL, discr_logL_eps = discr_logL_eps), 
@@ -235,8 +238,7 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
       { 
         for (i in 1:m)
         { 
-          for (t in 2:size)
-          { 
+          for (t in 2:size) { 
             eta[t - 1, i, j] <- exp( fb$log_alpha[(t - 1),i] + log(gamma[i, j]) 
                                      + log(dnbinom(x=x[t], size=size, prob = DNM_MLE(x[t])) 
                                      + fb$log_beta[t, j] - logL))          
@@ -541,6 +543,7 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
     {
       # x = distribution_theta$x, size = distribution_theta$size, 
       distribution_theta <- list(x = , size = , prob = prob)
+      # figure out later tbh
     }
  
  
@@ -678,3 +681,73 @@ function(x, m, delta, gamma, distribution_class, distribution_theta, discr_logL 
               pos_logL_error = pos_logL_error,
               worse_logL_error = worse_logL_error))
 }
+
+################################################################################
+################## test to see if I killed everything ##########################
+################################################################################
+
+
+
+library(readr)
+library(xts)
+library(zoo)
+library(tidyverse)
+library(MASS)
+library(depmixS4) 
+
+
+process_conflict_data <- function(csv_filename) {
+  # Load data
+  conflict_data <- read_csv(csv_filename) %>%
+    mutate(date_start = ymd(date_start), date_end = ymd(date_end))
+  
+  # Create a sequence of dates
+  date_sequence <- seq(min(conflict_data$date_start), max(conflict_data$date_end), by = "day")
+  
+  # Aggregate data
+  aggregated_data <- sapply(date_sequence, function(date) {
+    sum(conflict_data$high[date >= conflict_data$date_start & date <= conflict_data$date_end])
+  })
+  
+  # Convert to time series
+  conflict_time_series <- ts(aggregated_data, start = c(year(min(conflict_data$date_start)), month(min(conflict_data$date_start))), frequency = 365)
+  return(list(conflict_time_series = conflict_time_series, 
+              aggregated_data = aggregated_data, date_sequence = date_sequence))
+}
+
+# Sudan Data
+result <- process_conflict_data("dataframe_GED_Sudan_pruned.csv")
+conflict_time_series <- result$conflict_time_series
+aggregated_data <- result$aggregated_data
+date_sequence <- result$date_sequence
+
+transform_conflict <- function(conflict_time_series) {
+  # Log transform and difference the time series
+  trans_conflict <- log(conflict_time_series + 0.000000001)
+  
+  # Remove any NAs
+  trans_conflict <- na.omit(trans_conflict)
+  return(trans_conflict)
+}
+
+trans_conflict <- transform_conflict(conflict_time_series)
+
+m <- 3
+
+delta <- c(0.33,0.33,0.34)
+
+gamma <- 0.7 * diag(m) + rep(0.3 / m)
+
+distribution_class <- "pois"
+
+distribution_theta <- list(lambda = c(10,40,150))
+
+HMM_test <- 
+  Baum_Welch_algo(x = conflict_time_series, 
+                       m = m, 
+                       delta = delta, 
+                       gamma = gamma,
+                       distribution_class = distribution_class, 
+                       distribution_theta = distribution_theta)
+
+print(HMM_test)

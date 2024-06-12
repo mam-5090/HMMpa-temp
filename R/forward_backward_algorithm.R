@@ -1,4 +1,4 @@
-forward_backward_algorithm <-
+forward_backward_algo <-
 function(x, delta, gamma, distribution_class, distribution_theta, discr_logL = FALSE, discr_logL_eps = 0.5)
 {
 
@@ -42,7 +42,7 @@ function(x, delta, gamma, distribution_class, distribution_theta, discr_logL = F
   {
     probabilities <-  matrix(x, ncol = m, nrow = size)
     probabilities <-  t(apply(X = probabilities, MARGIN = 1, FUN = dnbinom, 
-                              x = distribution_theta$x, size = distribution_theta$size, prob = distribution_theta$prob))
+                              x = x, size = distribution_theta$size, prob = distribution_theta$prob))
   }
   
   if (distribution_class == "geom")
